@@ -9,7 +9,7 @@ describe("Test Room", () => {
         while (roomList.length > 0) {
             roomList.pop();
         }
-        while (userList.length > 0){
+        while (userList.length > 0) {
             userList.pop()
         }
     })
@@ -57,5 +57,20 @@ describe("Test Room", () => {
         let res = await request(app)
             .post(`/join-room?room=${room.uuid}&user=${user.uuid}`)
         expect(res.status).toBe(200)
+    })
+
+    test("Random word", async () => {
+        let room = new Room({name: "test"});
+        room.game = {
+            category: "a",
+            words: [{word: "a", hints: [], category: "a"}, {word: "b", hints: [], category: "a"}, {
+                word: "c",
+                hints: [],
+                category: "a"
+            }]
+        }
+
+        room.randomizeWord()
+        expect(room.game.words.length).toBe(3)
     })
 });

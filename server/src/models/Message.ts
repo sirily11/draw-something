@@ -2,8 +2,12 @@ import {IUser} from "./User";
 
 
 export interface Message{
-    type: "draw" | "chat" | "system" | "user"
-    content: DrawMessage | ChatMessage | SystemMessage | RoomMessage | WordMessage | TimeMessage
+    type: "draw" | "chat" | "system" | "room" | "word" | "command"
+    content: DrawMessage | ChatMessage | SystemMessage | RoomMessage | WordMessage | Command
+}
+
+export interface Command{
+    command: "next" | "start" | "stop"
 }
 
 /**
@@ -13,13 +17,6 @@ interface DrawMessage{
     x: any;
     y: any;
     user: IUser;
-}
-
-/**
- * Information about time remaining
- */
-interface TimeMessage{
-    timeRemaining: number;
 }
 
 /**
@@ -48,7 +45,10 @@ interface SystemMessage{
 /**
  * Information about current users in the room
  */
-interface RoomMessage{
+export interface RoomMessage{
     users: IUser[]
-
+    name: string;
+    hasStarted: boolean;
+    timeRemaining: number;
+    word: string;
 }
