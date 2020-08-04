@@ -4,7 +4,7 @@ import * as WebSocket from 'ws';
 export interface IUser {
     name: string;
     uuid?: string;
-    point: number;
+    point?: number;
 }
 
 
