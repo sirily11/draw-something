@@ -6,7 +6,8 @@
   "author": "sirily11",
   "license": "MIT",
   "scripts": {
-    "start": "ts-node src/app.ts"
+    "start": "ts-node src/app.ts",
+    "test": "jest --maxWorkers=1"
   },
   "dependencies": {
     "@types/cors": "^2.8.7",
