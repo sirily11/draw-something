@@ -35,11 +35,13 @@ roomWebsocket.on('connection', async (ws, req) => {
             user.roomWebsocket = ws;
             userList.push(user)
             console.info("Connect user. Total users: " + userList.length)
-
-        } else{
+            user.sendRoomMessage(roomList)
+        } else {
             console.error("Invalid url")
         }
     }
+
+
     ws.on('close', () => {
         let index = userList.findIndex((u) => u.uuid === uuid);
         if (index > -1) {
@@ -48,3 +50,36 @@ roomWebsocket.on('connection', async (ws, req) => {
     });
 })
 
+
+gameWebsocket.on("connection", (ws, req) => {
+    let foundRoom: Room;
+    let user: string;
+
+    if (req.url) {
+        let query = url.parse(req.url, true).query
+        user = query.user as string
+        let room = query.room
+
+        let foundUser = userList.find((u) => u.uuid === user)
+        foundRoom = roomList.find((r) => r.uuid === room)
+        if (foundRoom && foundUser) {
+            foundUser.roomWebsocket = ws;
+            foundRoom.notifyRoomStatus();
+            console.info(`Room ${room} has users: ${foundRoom.users.length}`)
+        } else {
+            console.error("Cannot found room and user")
+        }
+    }
+
+    ws.on("message", (msg: string) => {
+        let m = JSON.parse(msg)
+        foundRoom.users.forEach((u) => u.sendGameMessage(m))
+    })
+
+    ws.on("close", () => {
+        let index = foundRoom.users.findIndex((u) => u.uuid === user)
+        if(index > -1){
+            foundRoom.users.splice(index, 1)
+        }
+    })
+})

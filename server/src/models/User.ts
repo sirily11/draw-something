@@ -1,5 +1,7 @@
 import {v4 as uuidv4} from 'uuid';
 import * as WebSocket from 'ws';
+import {Message} from "./Message";
+import {Room} from "./Room";
 
 export interface IUser {
     name: string;
@@ -46,6 +48,14 @@ export class User implements IUser {
 
     endGame(){
         this.point = 0;
+    }
+
+    sendRoomMessage(message: Room[]){
+        this.roomWebsocket?.send(JSON.stringify(message))
+    }
+
+    sendGameMessage(message: Message){
+        this.gameWebsocket.send(JSON.stringify(message))
     }
 
     toJson(): IUser {

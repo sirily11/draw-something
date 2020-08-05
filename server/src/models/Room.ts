@@ -1,6 +1,6 @@
 import {User} from "./User";
 import {v4 as uuidv4} from 'uuid';
-import {Message} from "./Message";
+import {Message, RoomMessage} from "./Message";
 import {kTimePerGame} from "../config/config";
 import {Game} from "./tests/Word";
 import Axios from "axios";
@@ -46,7 +46,7 @@ export class Room {
      * A timer callback, will send room message and word message
      * based on the time remaining
      */
-    timeCallback(): Message[] {
+    timeCallback = (): Message[] => {
         let messages: Message[] = [];
         this.timeRemaining = this.timeRemaining - 1;
         let word = this.game.words[this.currentWordIndex]
@@ -92,6 +92,8 @@ export class Room {
     public startGame() {
         this.randomizeWord()
         this.hasStarted = true;
+        this.currentWordIndex = 0;
+        this.timeRemaining = kTimePerGame;
         this.timer = setInterval(this.timeCallback, 1000);
     }
 
@@ -129,13 +131,22 @@ export class Room {
     }
 
     /**
+     * Send each user about current room status.
+     * Call this before the game starts
+     */
+    public notifyRoomStatus() {
+        let message: RoomMessage = this.toJson()
+        this.users.forEach((u) => u.sendGameMessage({type: "room", content: message}));
+    }
+
+    /**
      * Send message to all clients
      * @param message
      */
     public sendMessage(message: Message) {
         console.log("send message", message)
         for (let user of this.users) {
-            user.gameWebsocket.send(JSON.stringify(message))
+            user.sendGameMessage(message)
         }
     }
 

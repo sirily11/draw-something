@@ -2,27 +2,13 @@
 import {kPort} from "./config/config";
 import {server} from "./app";
 import {Room} from "./models/Room";
+import {game} from "./game";
 
 
 let room = new Room({name: "Hello"})
-room.game = {
-    category: "test",
-    words: [
-        {
-            word: "A",
-            category: 'Car',
-            hints: [{
-                title: "A car",
-                timeShowAt: 55,
-            }, {
-                title: "B car",
-                timeShowAt: 50,
-            }]
-        }
-    ]
-}
+room.game = game
 room.startGame()
 
-// server.listen(kPort, () => {
-//     console.log(`server start`);
-// });
+server.listen(kPort, () => {
+    console.log(`server start`);
+});

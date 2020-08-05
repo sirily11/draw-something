@@ -7,23 +7,27 @@ export const homeRouter = express.Router();
 homeRouter.use(express.json());
 homeRouter.use(cors());
 
+// create room
 homeRouter.post('/room', async (req, res) => {
     let name = req.body.name
     let room = new Room({name: name});
     let find = roomList.find((r) => r.name === name)
     if (!find) {
         roomList.push(room)
+        userList.forEach((u) => u.sendRoomMessage(roomList))
         res.status(200).send({'status': "ok"})
     } else {
         res.status(500).send({"error": "Name exists"})
     }
 })
 
+// delete room
 homeRouter.delete('/room', async (req, res) => {
     let uuid = req.query.room;
     let roomIndex = roomList.findIndex((r) => r.uuid === uuid);
     if(roomIndex > -1){
         roomList.splice(roomIndex, 1)
+        userList.forEach((u) => u.sendRoomMessage(roomList))
         res.status(301).send({"status": "Deleted"})
     } else{
         res.status(404).send({"error": "Cannot delete"})

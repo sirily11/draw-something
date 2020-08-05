@@ -50,5 +50,5 @@ export interface RoomMessage{
     name: string;
     hasStarted: boolean;
     timeRemaining: number;
-    word: string;
+    word?: string;
 }
