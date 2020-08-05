@@ -33,7 +33,7 @@ export class Room {
      * Select game
      * @param url
      */
-    async selectGame(url: string) {
+    public async selectGame(url: string) {
         if (process.env.local) {
             // @ts-ignore
             this.game = JSON.parse(fs.readFileSync(''))
@@ -42,15 +42,22 @@ export class Room {
         }
     }
 
-    private timeCallback = () => {
+    /**
+     * A timer callback, will send room message and word message
+     * based on the time remaining
+     */
+    timeCallback(): Message[] {
+        let messages: Message[] = [];
         this.timeRemaining = this.timeRemaining - 1;
         let word = this.game.words[this.currentWordIndex]
         // Send message about time remaining
-        this.sendMessage({type: "room", content: {...this.toJson(), word: word.word}})
+        messages.push({type: "room", content: {...this.toJson(), word: word.word}})
+        this.sendMessage(messages[messages.length - 1])
         // send message about hint
         let hint = word.hints.find((h) => h.timeShowAt === this.timeRemaining)
         if (hint) {
-            this.sendMessage({type: "word", content: {word: word.category, hint: hint.title}})
+            messages.push({type: "word", content: {word: word.category, hint: hint.title}})
+            this.sendMessage(messages[messages.length - 1])
         }
         // when time is up
         if (this.timeRemaining === 0) {
@@ -61,13 +68,14 @@ export class Room {
                 window.clearInterval(this.timer)
             }
         }
+        return messages;
     }
 
     /**
      * Randomize words
      * @private
      */
-    randomizeWord() {
+    public randomizeWord() {
         let newGame: Game = {words: [], category: this.game.category}
         let words = this.game.words;
         while (words.length > 0) {
@@ -81,18 +89,24 @@ export class Room {
     /**
      * Start game
      */
-    startGame() {
+    public startGame() {
         this.randomizeWord()
         this.hasStarted = true;
         this.timer = setInterval(this.timeCallback, 1000);
     }
 
-    async nextWord() {
+    /**
+     * Next word
+     */
+    public async nextWord() {
         this.currentWordIndex += 1;
         this.timer = setInterval(this.timeCallback, 1000);
     }
 
-    stopGame() {
+    /**
+     * Stop the game.
+     */
+    public stopGame() {
         window.clearInterval(this.timer)
         this.currentWordIndex = 0;
         this.timeRemaining = kTimePerGame;
@@ -105,7 +119,7 @@ export class Room {
      * Add user to the room if the game is not started
      * @param user
      */
-    addUser(user: User): boolean {
+    public addUser(user: User): boolean {
         if (!this.hasStarted) {
             this.users.push(user)
             return true;
@@ -114,14 +128,18 @@ export class Room {
         }
     }
 
-    sendMessage(message: Message) {
+    /**
+     * Send message to all clients
+     * @param message
+     */
+    public sendMessage(message: Message) {
         console.log("send message", message)
         for (let user of this.users) {
             user.gameWebsocket.send(JSON.stringify(message))
         }
     }
 
-    toJson() {
+    public toJson() {
         return {
             hasStarted: this.hasStarted,
             users: this.users.map((u) => u.toJson()),

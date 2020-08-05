@@ -2,9 +2,32 @@ import * as request from "supertest";
 import {app, roomList, userList} from "../../app";
 import {Room} from "../Room";
 import {User} from "../User";
+import {Game} from "./Word";
+import {RoomMessage} from "../Message";
 
 
 describe("Test Room", () => {
+    let game: Game;
+
+    beforeEach(() => {
+        game = {
+            category: "a",
+            words: [{
+                word: "a", hints: [{
+                    title: "A car",
+                    timeShowAt: 55,
+                }], category: "a"
+            },
+                {word: "b", hints: [], category: "a"},
+                {
+                    word: "c",
+                    hints: [],
+                    category: "a"
+                }]
+        };
+    })
+
+
     afterEach(() => {
         while (roomList.length > 0) {
             roomList.pop();
@@ -61,16 +84,42 @@ describe("Test Room", () => {
 
     test("Random word", async () => {
         let room = new Room({name: "test"});
-        room.game = {
-            category: "a",
-            words: [{word: "a", hints: [], category: "a"}, {word: "b", hints: [], category: "a"}, {
-                word: "c",
-                hints: [],
-                category: "a"
-            }]
-        }
+        room.game = game;
 
         room.randomizeWord()
         expect(room.game.words.length).toBe(3)
+    })
+
+    test("Test timer callback", async () => {
+        let room = new Room({name: "Hello world"})
+        room.timeRemaining = 60;
+        room.game = game;
+
+        let messages = room.timeCallback()
+        expect(messages.length).toBe(1)
+        expect(messages[0].type).toBe("room")
+        expect((messages[0].content as RoomMessage).word).toBe('a')
+    })
+
+    test("Test timer callback 2", () => {
+        let room = new Room({name: "Hello world"})
+        room.timeRemaining = 56;
+        room.game = game;
+
+        let messages = room.timeCallback()
+        expect(messages.length).toBe(2)
+        expect(messages[0].type).toBe("room")
+        expect(messages[1].type).toBe("word")
+    })
+
+    test("Test timer callback 3 with next word", () => {
+        let room = new Room({name: "Hello world"})
+        room.timeRemaining = 56;
+        room.game = game;
+        room.nextWord()
+        let messages = room.timeCallback()
+        expect(messages.length).toBe(1)
+        expect(messages[0].type).toBe("room")
+        expect((messages[0].content as RoomMessage).word).toBe('b')
     })
 });
