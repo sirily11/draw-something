@@ -7,7 +7,7 @@ import {game} from "./game";
 
 let room = new Room({name: "Hello"})
 room.game = game
-room.startGame()
+// room.startGame()
 
 server.listen(kPort, () => {
     console.log(`server start`);

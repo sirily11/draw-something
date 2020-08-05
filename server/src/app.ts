@@ -43,8 +43,10 @@ roomWebsocket.on('connection', async (ws, req) => {
 
 
     ws.on('close', () => {
+        console.log("close", uuid)
         let index = userList.findIndex((u) => u.uuid === uuid);
         if (index > -1) {
+
             userList.splice(index, 1);
         }
     });
@@ -78,7 +80,7 @@ gameWebsocket.on("connection", (ws, req) => {
 
     ws.on("close", () => {
         let index = foundRoom.users.findIndex((u) => u.uuid === user)
-        if(index > -1){
+        if (index > -1) {
             foundRoom.users.splice(index, 1)
         }
     })

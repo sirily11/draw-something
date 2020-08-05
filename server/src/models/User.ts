@@ -51,7 +51,7 @@ export class User implements IUser {
     }
 
     sendRoomMessage(message: Room[]){
-        this.roomWebsocket?.send(JSON.stringify(message))
+        this.roomWebsocket?.send(JSON.stringify(message.map((r) => r.toJson())))
     }
 
     sendGameMessage(message: Message){
