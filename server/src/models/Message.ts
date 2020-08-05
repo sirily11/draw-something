@@ -1,28 +1,36 @@
 import {IUser} from "./User";
 
 
-export interface Message{
+export interface Message {
     type: "draw" | "chat" | "system" | "room" | "word" | "command"
     content: DrawMessage | ChatMessage | SystemMessage | RoomMessage | WordMessage | Command
 }
 
-export interface Command{
+export interface Command {
     command: "next" | "start" | "stop"
 }
 
 /**
  * Information about drawing
  */
-interface DrawMessage{
-    x: any;
-    y: any;
+interface DrawMessage {
+    offsets: {
+        dx: number,
+        dy: number,
+    }[],
+    color: {
+        red: number,
+        green: number,
+        blue: number,
+        opacity: number,
+    }
     user: IUser;
 }
 
 /**
  * Information about current words and its hint
  */
-interface WordMessage{
+interface WordMessage {
     word: string;
     hint: string;
 }
@@ -30,7 +38,7 @@ interface WordMessage{
 /**
  * Information about chatting
  */
-interface ChatMessage{
+interface ChatMessage {
     user: IUser;
     message: string
 }
@@ -38,14 +46,14 @@ interface ChatMessage{
 /**
  * Information about system
  */
-interface SystemMessage{
+interface SystemMessage {
     message: string;
 }
 
 /**
  * Information about current users in the room
  */
-export interface RoomMessage{
+export interface RoomMessage {
     users: IUser[]
     name: string;
     hasStarted: boolean;

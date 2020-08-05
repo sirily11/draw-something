@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/models/GameProvider.dart';
 import 'package:mobile/models/RoomProvider.dart';
 import 'package:mobile/pages/login/LoginPage.dart';
 import 'package:provider/provider.dart';
@@ -17,7 +18,10 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(
           create: (c) => RoomProvider(),
-        )
+        ),
+        ChangeNotifierProvider(
+          create: (c) => GameProvider(),
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

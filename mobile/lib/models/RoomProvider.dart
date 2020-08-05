@@ -40,20 +40,21 @@ class RoomProvider with ChangeNotifier {
         });
     this.roomStream = WebSocketChannel.connect(
       wsUri,
-    ).stream;
+    ).stream.asBroadcastStream();
 
-    roomStream.listen((event) {
-      print(event);
-    }, onDone: () {
-      print("Websocket is closed");
-    }, onError: (err) {
-      print("Error: $err");
-    });
     notifyListeners();
   }
 
   Future<void> createRoom(String name) async {
     var url = Uri.http(baseURL, roomURL);
     var response = await Dio().post(url.toString(), data: {"name": name});
+  }
+
+  Future<void> joinRoom(String roomId) async {
+    var url = Uri.http(baseURL, joinRoomURL);
+    var response = await Dio().post(
+      url.toString(),
+      queryParameters: {"room": roomId, "user": user.uuid},
+    );
   }
 }

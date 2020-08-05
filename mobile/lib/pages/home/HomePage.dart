@@ -1,7 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:mobile/models/RoomProvider.dart';
 import 'package:mobile/models/objects/room.dart';
+import 'package:mobile/pages/game/GamePage.dart';
 import 'package:mobile/pages/home/createRoom/CreateRoomDialog.dart';
+import 'package:mobile/pages/utils/ErrorDialog.dart';
 
 import 'package:provider/provider.dart';
 
@@ -11,6 +15,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  bool isLoading = false;
+
   @override
   void initState() {
     RoomProvider roomProvider = Provider.of(context, listen: false);
@@ -38,7 +44,79 @@ class _HomePageState extends State<HomePage> {
           )
         ],
       ),
-      body: Container(),
+      body: Stack(
+        children: [
+          StreamBuilder(
+            stream: roomProvider.roomStream,
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return Center(
+                  child: Text("Error: ${snapshot.error}"),
+                );
+              }
+
+              if (!snapshot.hasData) {
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+
+              List<Room> room = (JsonDecoder().convert(snapshot.data) as List)
+                  .map((r) => Room.fromJson(r))
+                  .toList();
+              return ListView.separated(
+                separatorBuilder: (context, index) => Divider(),
+                itemCount: room.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    onTap: () async {
+                      setState(() {
+                        isLoading = true;
+                      });
+                      try {
+                        await roomProvider.joinRoom(room[index].room);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (c) => GamePage(room: room[index].room),
+                          ),
+                        );
+                      } catch (err) {
+                        await showDialog(
+                          context: context,
+                          builder: (c) => ErrorDialog(
+                            title: "Cannot join the room",
+                            content: "$err",
+                          ),
+                        );
+                      } finally {
+                        isLoading = false;
+                      }
+                    },
+                    title: Text("Room"),
+                    subtitle: Text("${room[index].name}"),
+                    trailing:
+                        Text("Number of users: ${room[index].users.length}"),
+                  );
+                },
+              );
+            },
+          ),
+          if (isLoading)
+            Align(
+              alignment: Alignment.center,
+              child: Card(
+                child: Container(
+                  height: 100,
+                  width: 100,
+                  child: Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                ),
+              ),
+            )
+        ],
+      ),
     );
   }
 }

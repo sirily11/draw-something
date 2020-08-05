@@ -44,7 +44,7 @@ homeRouter.post('/join-room', async (req, res) => {
     let user = userList.find((u) => u.uuid === userId);
 
     if (room && user) {
-        let success = room.addUser(user)
+        let success = room.hasStarted !== true
         if(success){
             res.status(200).send({"status": "success"})
             return;

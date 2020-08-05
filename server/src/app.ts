@@ -1,7 +1,7 @@
 import * as express from 'express';
 import * as http from 'http';
-import * as WebSocket from 'ws';
 import * as cors from "cors"
+import * as enableWs from 'express-ws'
 import {kPort} from "./config/config";
 import {homeRouter} from "./routers/home_routers";
 import {User} from "./models/User";
@@ -10,21 +10,21 @@ import * as url from "url";
 import {Room} from "./models/Room";
 
 
-export const app = express();
+export const {app, getWss, applyTo} = enableWs(express());
 app.use(express.json());
 app.use(cors());
 //routers
 app.use(homeRouter);
 app.use(userRouter);
+
 //initialize a simple http server
 export const server = http.createServer(app);
 //initialize the WebSocket server instance
-const roomWebsocket = new WebSocket.Server({server: server, path: ""});
-const gameWebsocket = new WebSocket.Server({server: server, path: "/game"});
 export const userList: User[] = [];
 export const roomList: Room[] = [];
 
-roomWebsocket.on('connection', async (ws, req) => {
+
+app.ws('/', (ws, req) => {
     let uuid = ""
     if (req.url) {
         let query = url.parse(req.url, true).query
@@ -34,26 +34,28 @@ roomWebsocket.on('connection', async (ws, req) => {
             let user = new User({name: username, uuid: uuid, point: 0})
             user.roomWebsocket = ws;
             userList.push(user)
-            console.info("Connect user. Total users: " + userList.length)
+            console.info(`Connect user ${uuid}. Total users: ` + userList.length)
             user.sendRoomMessage(roomList)
         } else {
             console.error("Invalid url")
         }
     }
 
+    ws.on("error", (err) => {
+        console.log(err)
+    })
 
     ws.on('close', () => {
         console.log("close", uuid)
         let index = userList.findIndex((u) => u.uuid === uuid);
         if (index > -1) {
-
             userList.splice(index, 1);
         }
     });
 })
 
 
-gameWebsocket.on("connection", (ws, req) => {
+app.ws("/game", async (ws, req) => {
     let foundRoom: Room;
     let user: string;
 
@@ -61,11 +63,11 @@ gameWebsocket.on("connection", (ws, req) => {
         let query = url.parse(req.url, true).query
         user = query.user as string
         let room = query.room
-
         let foundUser = userList.find((u) => u.uuid === user)
         foundRoom = roomList.find((r) => r.uuid === room)
         if (foundRoom && foundUser) {
-            foundUser.roomWebsocket = ws;
+            foundUser.gameWebsocket = ws;
+            foundRoom.addUser(foundUser)
             foundRoom.notifyRoomStatus();
             console.info(`Room ${room} has users: ${foundRoom.users.length}`)
         } else {
@@ -79,7 +81,8 @@ gameWebsocket.on("connection", (ws, req) => {
     })
 
     ws.on("close", () => {
-        let index = foundRoom.users.findIndex((u) => u.uuid === user)
+        console.info("Close game")
+        let index = foundRoom?.users?.findIndex((u) => u.uuid === user) ?? -1
         if (index > -1) {
             foundRoom.users.splice(index, 1)
         }

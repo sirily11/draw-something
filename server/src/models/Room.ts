@@ -123,7 +123,12 @@ export class Room {
      */
     public addUser(user: User): boolean {
         if (!this.hasStarted) {
-            this.users.push(user)
+            let found = this.users.findIndex((u) => u.uuid === user.uuid)
+            if (found === -1) {
+                this.users.push(user)
+            } else {
+                this.users[found] = user;
+            }
             return true;
         } else {
             return false;
@@ -156,6 +161,7 @@ export class Room {
             users: this.users.map((u) => u.toJson()),
             timeRemaining: this.timeRemaining,
             name: this.name,
+            room: this.uuid,
         }
     }
 }

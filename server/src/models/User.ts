@@ -34,7 +34,7 @@ export class User implements IUser {
     constructor(args: IUser) {
         if (args.name) {
             this.name = args.name;
-            this.uuid = uuidv4();
+            this.uuid = args.uuid ? args.uuid: uuidv4();
             this.point = 0;
         } else {
             throw "User name should not be null"
