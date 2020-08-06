@@ -2,8 +2,8 @@ import * as request from "supertest";
 import {app, roomList, userList} from "../../app";
 import {Room} from "../Room";
 import {User} from "../User";
-import {Game} from "./Word";
-import {RoomMessage} from "../Message";
+import {Game} from "../Word";
+import {ChatMessage, RoomMessage} from "../Message";
 
 
 describe("Test Room", () => {
@@ -134,5 +134,17 @@ describe("Test Room", () => {
         expect(room.hasStarted).toBeFalsy()
         room.ready(user2)
         expect(room.hasStarted).toBeTruthy()
+    })
+
+    test("Send message", () =>{
+        let room = new Room(({name: "Hello world"}));
+        room.game = game;
+        room.hasStarted = true
+        let result = room.sendMessage({ type: "chat", content: {message: "a"} });
+        expect((result.content as ChatMessage).message).toBe("****")
+        let result2 = room.sendMessage({ type: "chat", content: {message: "A"} });
+        expect((result2.content as ChatMessage).message).toBe("****")
+        let result3 = room.sendMessage({ type: "chat", content: {message: "b"} });
+        expect((result3.content as ChatMessage).message).toBe("b")
     })
 });

@@ -57,12 +57,13 @@ app.ws('/', (ws, req) => {
 
 app.ws("/game", async (ws, req) => {
     let foundRoom: Room;
+    let room: any;
     let user: string;
 
     if (req.url) {
         let query = url.parse(req.url, true).query
         user = query.user as string
-        let room = query.room
+        room = query.room
         let foundUser = userList.find((u) => u.uuid === user)
         foundRoom = roomList.find((r) => r.uuid === room)
         if (foundRoom && foundUser) {
@@ -77,7 +78,10 @@ app.ws("/game", async (ws, req) => {
 
     ws.on("message", (msg: string) => {
         let m = JSON.parse(msg)
-        foundRoom.users.forEach((u) => u.sendGameMessage(m))
+        let r = roomList.find((r) => r.uuid)
+        if (r) {
+            r.sendMessage(m);
+        }
     })
 
     ws.on("close", () => {

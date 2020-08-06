@@ -39,7 +39,7 @@ interface WordMessage {
 /**
  * Information about chatting
  */
-interface ChatMessage {
+export interface ChatMessage {
     user: IUser;
     message: string
 }

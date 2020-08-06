@@ -300,5 +300,7 @@ class GameProvider with ChangeNotifier implements Game {
   @override
   void closeConnection() {
     this.webSocketChannel?.sink?.close();
+    this.chat.clear();
+    notifyListeners();
   }
 }

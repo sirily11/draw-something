@@ -57,7 +57,6 @@ export class User implements IUser {
 
     sendGameMessage(message: Message) {
         if (this.gameWebsocket?.readyState === 1) {
-            console.log(message)
             this.gameWebsocket.send(JSON.stringify(message))
         }
 

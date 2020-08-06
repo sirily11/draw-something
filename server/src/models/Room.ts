@@ -1,8 +1,8 @@
 import {User} from "./User";
 import {v4 as uuidv4} from 'uuid';
-import {Command, Message, RoomMessage} from "./Message";
+import {ChatMessage, Command, Message, RoomMessage} from "./Message";
 import {kTimePerGame, kWaitTime} from "../config/config";
-import {Game} from "./tests/Word";
+import {Game} from "./Word";
 import Axios from "axios";
 import * as fs from "fs";
 import {roomList, userList} from "../app";
@@ -180,10 +180,21 @@ export class Room {
      * @param message
      */
     public sendMessage(message: Message) {
-        console.log("send message", message)
+        if (message.type === "chat") {
+            if (this.hasStarted) {
+                let word = this.game.words[this.currentWordIndex]?.word
+                let content = message.content as ChatMessage;
+                (message.content as ChatMessage).message = content.message.replace(word, "****");
+                (message.content as ChatMessage).message = content.message.replace(word.toLowerCase(), "****");
+                (message.content as ChatMessage).message = content.message.replace(word.toUpperCase(), "****")
+            }
+        }
+
         for (let user of this.users) {
             user.sendGameMessage(message)
         }
+
+        return message;
     }
 
     public ready(user: User) {
