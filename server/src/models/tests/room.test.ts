@@ -123,16 +123,16 @@ describe("Test Room", () => {
         expect((messages[0].content as RoomMessage).word).toBe('b')
     })
 
-    test("Start a game", ()=>{
+    test("Start a game", async ()=>{
         let room = new Room(({name: "Hello world"}))
         room.game = game
         let user = new User({name: "Test"})
         let user2 = new User({name: "Test2"})
         room.addUser(user)
         room.addUser(user2)
-        room.ready(user)
+        await room.ready(user)
         expect(room.hasStarted).toBeFalsy()
-        room.ready(user2)
+        await room.ready(user2)
         expect(room.hasStarted).toBeTruthy()
     })
 

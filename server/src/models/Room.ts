@@ -104,7 +104,6 @@ export class Room {
      * Start game
      */
     public async startGame() {
-        await this.selectGame("/Users/qiweili/Desktop/projects/draw-something/server/src/games/test.game.json")
         this.randomizeWord()
         this.readyUsers = [];
         this.hasStarted = true;
@@ -198,12 +197,12 @@ export class Room {
         return message;
     }
 
-    public ready(user: User) {
+    public async ready(user: User) {
         let foundUser = this.readyUsers.find((u) => u.uuid === user.uuid)
         if (!foundUser) {
             this.readyUsers.push(user);
             if (this.readyUsers.length === this.users.length) {
-                this.startGame()
+                await this.startGame()
             }
             this.notifyRoomStatus();
         }
