@@ -28,7 +28,8 @@ class WordDisplay extends StatelessWidget {
                     "Word: ${room.word} | Time: ${room.timeRemaining}",
                   );
                 } else {
-                  return Text("Time: ${room.timeRemaining}");
+                  return Text(
+                      "${room?.word?.length ?? 0}个字 | Time: ${room.timeRemaining}");
                 }
               } else {
                 return Text(

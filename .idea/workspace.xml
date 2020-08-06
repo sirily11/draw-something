@@ -3,8 +3,11 @@
   <component name="ChangeListManager">
     <list default="true" id="3076fa3c-da14-47b4-9c24-97ab9900d403" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mobile/lib/pages/game/word/HintDisplay.dart" beforeDir="false" afterPath="$PROJECT_DIR$/mobile/lib/pages/game/word/HintDisplay.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mobile/lib/pages/game/word/WordDisplay.dart" beforeDir="false" afterPath="$PROJECT_DIR$/mobile/lib/pages/game/word/WordDisplay.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/config/config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/config/config.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/games/test.game.json" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/games/test.game.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/src/models/Room.ts" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/models/Room.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/src/models/tests/room.test.ts" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/models/tests/room.test.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -47,7 +50,7 @@
       <recent name="$PROJECT_DIR$" />
     </key>
   </component>
-  <component name="RunManager" selected="Jest.Run tests">
+  <component name="RunManager" selected="Node.js.Run Server">
     <configuration name="Run tests" type="JavaScriptTestRunnerJest">
       <config-file value="$PROJECT_DIR$/server/jest.config.js" />
       <node-interpreter value="project" />
@@ -145,6 +148,7 @@
     <configuration name="Run Server" type="NodeJSConfigurationType" node-parameters="--require ts-node/register" path-to-js-file="src/index.ts" working-dir="$PROJECT_DIR$/server">
       <envs>
         <env name="local" value="1" />
+        <env name="game" value="$PROJECT_DIR$/server/src/games/test.game.json" />
       </envs>
       <method v="2" />
     </configuration>
@@ -177,7 +181,7 @@
       <option name="presentableId" value="Default" />
       <updated>1596555862821</updated>
       <workItem from="1596555863891" duration="10680000" />
-      <workItem from="1596599283318" duration="21690000" />
+      <workItem from="1596599283318" duration="22737000" />
     </task>
     <servers />
   </component>
@@ -185,40 +189,40 @@
     <option name="version" value="3" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="599" y="222" width="1071" height="724" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1596706320957">
+    <state x="599" y="222" width="1071" height="724" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1596707557051">
       <screen x="0" y="0" width="1792" height="1120" />
     </state>
-    <state x="599" y="222" width="1071" height="724" key="#com.intellij.execution.impl.EditConfigurationsDialog/1792.100.1288.946/0.0.1792.1120@0.0.1792.1120" timestamp="1596706320957" />
+    <state x="599" y="222" width="1071" height="724" key="#com.intellij.execution.impl.EditConfigurationsDialog/1792.100.1288.946/0.0.1792.1120@0.0.1792.1120" timestamp="1596707557051" />
     <state width="610" height="618" key="DebuggerActiveHint" timestamp="1596702247591">
       <screen x="0" y="0" width="1792" height="1120" />
     </state>
     <state width="610" height="618" key="DebuggerActiveHint/1792.100.1288.946/0.0.1792.1120@0.0.1792.1120" timestamp="1596702247591" />
-    <state x="987" y="229" key="EnvironmentVariablesDialog" timestamp="1596705818897">
+    <state x="987" y="229" key="EnvironmentVariablesDialog" timestamp="1596707555431">
       <screen x="0" y="0" width="1792" height="1120" />
     </state>
-    <state x="987" y="229" key="EnvironmentVariablesDialog/1792.100.1288.946/0.0.1792.1120@0.0.1792.1120" timestamp="1596705818897" />
-    <state width="1771" height="372" key="GridCell.Tab.0.bottom" timestamp="1596706357780">
+    <state x="987" y="229" key="EnvironmentVariablesDialog/1792.100.1288.946/0.0.1792.1120@0.0.1792.1120" timestamp="1596707555431" />
+    <state width="1771" height="372" key="GridCell.Tab.0.bottom" timestamp="1596708629852">
       <screen x="0" y="0" width="1792" height="1120" />
     </state>
-    <state width="1771" height="372" key="GridCell.Tab.0.bottom/1792.100.1288.946/0.0.1792.1120@0.0.1792.1120" timestamp="1596706357780" />
+    <state width="1771" height="372" key="GridCell.Tab.0.bottom/1792.100.1288.946/0.0.1792.1120@0.0.1792.1120" timestamp="1596708629852" />
     <state width="1771" height="313" key="GridCell.Tab.0.bottom/1792.123.1288.923/0.0.1792.1120@0.0.1792.1120" timestamp="1596592744650" />
     <state width="1771" height="386" key="GridCell.Tab.0.bottom/1792.123.1288.923/0.23.1792.1030@0.23.1792.1030" timestamp="1596599185671" />
-    <state width="1771" height="372" key="GridCell.Tab.0.center" timestamp="1596706357779">
+    <state width="1771" height="372" key="GridCell.Tab.0.center" timestamp="1596708629850">
       <screen x="0" y="0" width="1792" height="1120" />
     </state>
-    <state width="1771" height="372" key="GridCell.Tab.0.center/1792.100.1288.946/0.0.1792.1120@0.0.1792.1120" timestamp="1596706357779" />
+    <state width="1771" height="372" key="GridCell.Tab.0.center/1792.100.1288.946/0.0.1792.1120@0.0.1792.1120" timestamp="1596708629850" />
     <state width="1771" height="313" key="GridCell.Tab.0.center/1792.123.1288.923/0.0.1792.1120@0.0.1792.1120" timestamp="1596592744649" />
     <state width="1771" height="386" key="GridCell.Tab.0.center/1792.123.1288.923/0.23.1792.1030@0.23.1792.1030" timestamp="1596599185670" />
-    <state width="1771" height="372" key="GridCell.Tab.0.left" timestamp="1596706357778">
+    <state width="1771" height="372" key="GridCell.Tab.0.left" timestamp="1596708629850">
       <screen x="0" y="0" width="1792" height="1120" />
     </state>
-    <state width="1771" height="372" key="GridCell.Tab.0.left/1792.100.1288.946/0.0.1792.1120@0.0.1792.1120" timestamp="1596706357778" />
+    <state width="1771" height="372" key="GridCell.Tab.0.left/1792.100.1288.946/0.0.1792.1120@0.0.1792.1120" timestamp="1596708629850" />
     <state width="1771" height="313" key="GridCell.Tab.0.left/1792.123.1288.923/0.0.1792.1120@0.0.1792.1120" timestamp="1596592744648" />
     <state width="1771" height="386" key="GridCell.Tab.0.left/1792.123.1288.923/0.23.1792.1030@0.23.1792.1030" timestamp="1596599185669" />
-    <state width="1771" height="372" key="GridCell.Tab.0.right" timestamp="1596706357780">
+    <state width="1771" height="372" key="GridCell.Tab.0.right" timestamp="1596708629851">
       <screen x="0" y="0" width="1792" height="1120" />
     </state>
-    <state width="1771" height="372" key="GridCell.Tab.0.right/1792.100.1288.946/0.0.1792.1120@0.0.1792.1120" timestamp="1596706357780" />
+    <state width="1771" height="372" key="GridCell.Tab.0.right/1792.100.1288.946/0.0.1792.1120@0.0.1792.1120" timestamp="1596708629851" />
     <state width="1771" height="313" key="GridCell.Tab.0.right/1792.123.1288.923/0.0.1792.1120@0.0.1792.1120" timestamp="1596592744650" />
     <state width="1771" height="386" key="GridCell.Tab.0.right/1792.123.1288.923/0.23.1792.1030@0.23.1792.1030" timestamp="1596599185670" />
     <state width="1771" height="386" key="GridCell.Tab.1.bottom" timestamp="1596706218919">

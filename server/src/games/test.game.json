@@ -3,11 +3,43 @@
   "words": [
     {
       "word": "Hello world",
-      "category": "Computer",
+      "category": "计算机术语",
       "hints": [
         {
-          "title": "a",
+          "title": "计算机术语",
           "timeShowAt": 40
+        },
+        {
+          "title": "编程第一个学",
+          "timeShowAt": 20
+        }
+      ]
+    },
+    {
+      "word": "iPhone",
+      "category": "手机",
+      "hints": [
+        {
+          "title": "好用的手机",
+          "timeShowAt": 40
+        },
+        {
+          "title": "世界市值第一的公司的手机",
+          "timeShowAt": 20
+        }
+      ]
+    },
+    {
+      "word": "小米手机",
+      "category": "手机",
+      "hints": [
+        {
+          "title": "杂货铺",
+          "timeShowAt": 40
+        },
+        {
+          "title": "便宜的代名词",
+          "timeShowAt": 20
         }
       ]
     }

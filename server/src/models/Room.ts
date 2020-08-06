@@ -44,7 +44,7 @@ export class Room {
     public async selectGame(url: string) {
         if (process.env.local) {
             // @ts-ignore
-            this.game = JSON.parse(fs.readFileSync(url))
+            this.game = JSON.parse(fs.readFileSync(process.env.game))
         } else {
             this.game = await Axios.get(url);
         }
@@ -76,10 +76,6 @@ export class Room {
                 this.stopGame();
             } else {
                 clearInterval(this.timer)
-                setTimeout(() => {
-                    this.nextWord();
-                }, kWaitTime * 1000)
-
             }
         }
         return messages;
@@ -104,6 +100,9 @@ export class Room {
      * Start game
      */
     public async startGame() {
+        if (process.env.local) {
+            await this.selectGame("")
+        }
         this.randomizeWord()
         this.readyUsers = [];
         this.hasStarted = true;
@@ -133,12 +132,12 @@ export class Room {
     public stopGame() {
         clearInterval(this.timer)
         this.currentWordIndex = 0;
-        this.timeRemaining = kTimePerGame;
         this.currentWordIndex = 0;
         this.currentUser = undefined;
         this.hasStarted = false;
         // send message
         this.sendMessage({type: "room", content: {...this.toJson(), word: undefined}})
+        this.timeRemaining = kTimePerGame;
     }
 
     /**
@@ -202,7 +201,11 @@ export class Room {
         if (!foundUser) {
             this.readyUsers.push(user);
             if (this.readyUsers.length === this.users.length) {
-                await this.startGame()
+                if (this.hasStarted) {
+                    this.nextWord()
+                } else {
+                    await this.startGame()
+                }
             }
             this.notifyRoomStatus();
         }
