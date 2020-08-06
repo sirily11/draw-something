@@ -44,7 +44,7 @@ export class Room {
     public async selectGame(url: string) {
         if (process.env.local) {
             // @ts-ignore
-            this.game = JSON.parse(fs.readFileSync(''))
+            this.game = JSON.parse(fs.readFileSync(url))
         } else {
             this.game = await Axios.get(url);
         }
@@ -103,7 +103,8 @@ export class Room {
     /**
      * Start game
      */
-    public startGame() {
+    public async startGame() {
+        await this.selectGame("/Users/qiweili/Desktop/projects/draw-something/server/src/games/test.game.json")
         this.randomizeWord()
         this.readyUsers = [];
         this.hasStarted = true;
