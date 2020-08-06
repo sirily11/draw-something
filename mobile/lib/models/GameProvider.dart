@@ -1,12 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
-
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/models/config/urls.dart';
 import 'package:mobile/models/objects/chat.dart';
+import 'package:mobile/models/objects/game.dart';
 import 'package:mobile/models/objects/user.dart';
-import 'package:provider/provider.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
@@ -62,16 +61,30 @@ class Line extends BaseMessage {
   }
 }
 
-class GameProvider with ChangeNotifier {
-  List<Line> lines = [];
-  List<Line> _removedLines = [];
-  Color _drawColor = Colors.indigo;
-  Stream gameStream;
-  WebSocketChannel webSocketChannel;
+class GameProvider with ChangeNotifier implements Game {
+  @override
+  User user;
+  @override
+  String baseURL;
   final ItemScrollController itemScrollController = ItemScrollController();
   final ItemPositionsListener itemPositionsListener =
       ItemPositionsListener.create();
+  List<Line> lines = [];
+  List<Line> _removedLines = [];
+  Color _drawColor = Colors.indigo;
+  bool canDraw = true;
+  Stream gameStream;
+
+  /// A stream contains room info
+  Stream<RoomMessage> roomStream;
+
+  /// A stream contains word info
+  Stream<WordMessage> wordStream;
+
   List<ChatMessage> chat = [];
+
+  @override
+  WebSocketChannel webSocketChannel;
 
   Color get drawColor => _drawColor;
 
@@ -81,32 +94,47 @@ class GameProvider with ChangeNotifier {
   }
 
   void startNewLine(Offset offset) {
-    lines.add(
-      Line(
-        offsets: [offset],
-        color: Color.fromRGBO(_drawColor.red, _drawColor.green, _drawColor.blue,
-            _drawColor.opacity),
-      ),
-    );
-    _removedLines.clear();
-    notifyListeners();
+    if (canDraw) {
+      lines.add(
+        Line(
+          offsets: [offset],
+          color: Color.fromRGBO(_drawColor.red, _drawColor.green,
+              _drawColor.blue, _drawColor.opacity),
+        ),
+      );
+      _removedLines.clear();
+      notifyListeners();
+    }
   }
 
   /// Send message
-  void endLine(User user) {
-    var line = this.lines.last;
-    line.user = user;
-    var encodedStr =
-        JsonEncoder().convert({"type": "draw", "content": line.toJson()});
-    this.webSocketChannel.sink.add(encodedStr);
+  void endLine() {
+    if (canDraw) {
+      var line = this.lines.last;
+      line.user = user;
+      var encodedStr =
+          JsonEncoder().convert({"type": "draw", "content": line.toJson()});
+      this.webSocketChannel.sink.add(encodedStr);
+    }
   }
 
+  /// Draw line with given offset
   void drawLine(Offset offset) {
-    lines.last.offsets.add(offset);
-    notifyListeners();
+    if (canDraw) {
+      lines.last.offsets.add(offset);
+      notifyListeners();
+    }
   }
 
+  /// Undo command
   void undo() {
+    if (canDraw) {
+      _undo();
+      _sendCommand(Command(command: "undo"));
+    }
+  }
+
+  void _undo() {
     if (lines.length > 0) {
       var removed = lines.removeLast();
       _removedLines.add(removed);
@@ -114,7 +142,15 @@ class GameProvider with ChangeNotifier {
     }
   }
 
+  /// Redo command
   void redo() {
+    if (canDraw) {
+      _redo();
+      _sendCommand(Command(command: "redo"));
+    }
+  }
+
+  void _redo() {
     if (_removedLines.length > 0) {
       var restore = _removedLines.removeLast();
       lines.add(restore);
@@ -122,14 +158,36 @@ class GameProvider with ChangeNotifier {
     }
   }
 
+  /// Clear all drawing
   void clear() {
+    if (canDraw) {
+      _clear();
+      _sendCommand(Command(command: "clear"));
+    }
+  }
+
+  void _clear() {
     lines.clear();
     _removedLines.clear();
     notifyListeners();
   }
 
+  void _sendCommand(Command command) {
+    var str = JsonEncoder().convert(
+      Message(message: command, messageType: MessageType.command).toJson(),
+    );
+
+    this.webSocketChannel?.sink?.add(str);
+  }
+
   /// Connect to the websocket
-  void connect(String baseURL, User user, String room) {
+  void connect({
+    @required String baseURL,
+    @required User user,
+    @required String room,
+  }) {
+    this.baseURL = baseURL;
+    this.user = user;
     var uri = Uri(
         scheme: "ws",
         host: baseURL,
@@ -150,6 +208,21 @@ class GameProvider with ChangeNotifier {
     var drawStream =
         convertedStream.where((event) => event.messageType == MessageType.draw);
 
+    this.roomStream = convertedStream
+        .where((event) => event.messageType == MessageType.room)
+        .map((event) => event.message as RoomMessage)
+        .asBroadcastStream();
+
+    this.wordStream = convertedStream
+        .where((event) => event.messageType == MessageType.word)
+        .map((event) => event.message as WordMessage)
+        .asBroadcastStream();
+
+    var commandStream = convertedStream
+        .where((event) => event.messageType == MessageType.command)
+        .map((event) => event.message as Command)
+        .asBroadcastStream();
+
     drawStream.listen((event) {
       if ((event.message as Line).user.uuid != user.uuid) {
         lines.add(event.message);
@@ -167,9 +240,34 @@ class GameProvider with ChangeNotifier {
             );
       }
     });
+
+    roomStream.listen((event) {
+      canDraw = true;
+      if (event.hasStarted) {
+        if (event.currentUser != user) {
+          canDraw = false;
+          notifyListeners();
+        }
+      }
+    });
+
+    commandStream.listen((event) {
+      switch (event.command) {
+        case "clear":
+          _clear();
+          break;
+        case "redo":
+          _redo();
+          break;
+        case "undo":
+          _undo();
+          break;
+      }
+    });
   }
 
-  Future<void> sendMessage(String message, User user) async {
+  /// Send chat messages
+  Future<void> sendMessage(String message) async {
     this.webSocketChannel.sink.add(
           JsonEncoder().convert(
             Message(
@@ -179,5 +277,28 @@ class GameProvider with ChangeNotifier {
           ),
         );
     notifyListeners();
+  }
+
+  /// Press button to get in the ready position
+  Future<void> ready({
+    @required String room,
+  }) async {
+    var uri = Uri.http(baseURL, startGameURL);
+    await Dio().post(uri.toString(),
+        queryParameters: {"user": user.uuid, "room": room});
+  }
+
+  /// Press button to get in the unready position
+  Future<void> notReady({
+    @required String room,
+  }) async {
+    var uri = Uri.http(baseURL, startGameURL);
+    await Dio().delete(uri.toString(),
+        queryParameters: {"user": user.uuid, "room": room});
+  }
+
+  @override
+  void closeConnection() {
+    this.webSocketChannel?.sink?.close();
   }
 }

@@ -1,4 +1,4 @@
-import {IUser} from "./User";
+import {IUser, User} from "./User";
 
 
 export interface Message {
@@ -7,7 +7,8 @@ export interface Message {
 }
 
 export interface Command {
-    command: "next" | "start" | "stop"
+    command: "clear" | "redo" | "undo";
+    user: IUser
 }
 
 /**

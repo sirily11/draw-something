@@ -24,6 +24,19 @@ class Message {
       case "room":
         return Message(
           messageType: MessageType.room,
+          message: RoomMessage.fromJson(json['content']),
+        );
+
+      case "word":
+        return Message(
+          messageType: MessageType.word,
+          message: WordMessage.fromJson(json['content']),
+        );
+
+      case "command":
+        return Message(
+          messageType: MessageType.command,
+          message: Command.fromJson(json['content']),
         );
 
       default:
@@ -40,22 +53,22 @@ class Message {
 
     switch (messageType) {
       case MessageType.draw:
-        // TODO: Handle this case.
+        type = "draw";
         break;
       case MessageType.chat:
         type = "chat";
         break;
       case MessageType.system:
-        // TODO: Handle this case.
+        type = "system";
         break;
       case MessageType.room:
-        // TODO: Handle this case.
+        type = "room";
         break;
       case MessageType.word:
-        // TODO: Handle this case.
+        type = "word";
         break;
       case MessageType.command:
-        // TODO: Handle this case.
+        type = "command";
         break;
     }
 
@@ -69,39 +82,21 @@ class Message {
 class Command extends BaseMessage {
   Command({
     this.command,
+    this.user,
   });
 
-  CommandEnum command;
+  String command;
+  User user;
 
   factory Command.fromJson(Map<String, dynamic> json) => Command(
-        command: commandEnumValues.map[json["command"]],
+        command: json['command'],
+        user: json['user'] != null ? User.fromJson(json['user']) : null,
       );
 
   Map<String, dynamic> toJson() => {
-        "command": commandEnumValues.reverse[command],
+        "command": command,
+        "user": user,
       };
-}
-
-enum CommandEnum { NEXT, START, STOP }
-
-final commandEnumValues = EnumValues({
-  "next": CommandEnum.NEXT,
-  "start": CommandEnum.START,
-  "stop": CommandEnum.STOP
-});
-
-class EnumValues<T> {
-  Map<String, T> map;
-  Map<T, String> reverseMap;
-
-  EnumValues(this.map);
-
-  Map<T, String> get reverse {
-    if (reverseMap == null) {
-      reverseMap = map.map((k, v) => new MapEntry(v, k));
-    }
-    return reverseMap;
-  }
 }
 
 class SystemMessage extends BaseMessage {
@@ -128,12 +123,14 @@ class RoomMessage extends BaseMessage {
     this.users,
     this.word,
     this.currentUser,
+    this.readyUsers,
   });
 
   bool hasStarted;
   String name;
   double timeRemaining;
   List<User> users;
+  List<User> readyUsers;
   User currentUser;
   String word;
 
@@ -142,6 +139,8 @@ class RoomMessage extends BaseMessage {
         name: json["name"],
         timeRemaining: json["timeRemaining"].toDouble(),
         users: List<User>.from(json["users"].map((x) => User.fromJson(x))),
+        readyUsers:
+            List<User>.from(json["readyUsers"].map((x) => User.fromJson(x))),
         word: json["word"] == null ? null : json["word"],
         currentUser: json['currentUser'] != null
             ? User.fromJson(json['currentUser'])
@@ -153,6 +152,7 @@ class RoomMessage extends BaseMessage {
         "name": name,
         "timeRemaining": timeRemaining,
         "users": List<dynamic>.from(users.map((x) => x.toJson())),
+        "readyUsers": List<dynamic>.from(readyUsers.map((x) => x.toJson())),
         "word": word == null ? null : word,
       };
 }

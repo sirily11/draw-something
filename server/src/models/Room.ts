@@ -1,10 +1,12 @@
 import {User} from "./User";
 import {v4 as uuidv4} from 'uuid';
-import {Message, RoomMessage} from "./Message";
-import {kTimePerGame} from "../config/config";
+import {Command, Message, RoomMessage} from "./Message";
+import {kTimePerGame, kWaitTime} from "../config/config";
 import {Game} from "./tests/Word";
 import Axios from "axios";
 import * as fs from "fs";
+import {roomList, userList} from "../app";
+import {game} from "../game";
 
 function getRandomArbitrary(min: number, max: number) {
     return Math.random() * (max - min) + min;
@@ -13,12 +15,15 @@ function getRandomArbitrary(min: number, max: number) {
 export class Room {
     uuid: string;
     users: User[];
+    readyUsers: User[];
     name: string;
     hasStarted: boolean;
     private timer: NodeJS.Timeout
     timeRemaining: number;
     currentWordIndex: number;
     game: Game
+    currentUserIndex: number;
+    currentUser: User;
 
     constructor(args: { name: string }) {
         this.name = args.name
@@ -27,6 +32,9 @@ export class Room {
         this.users = [];
         this.currentWordIndex = 0;
         this.timeRemaining = kTimePerGame;
+        this.readyUsers = [];
+        this.game = game;
+        this.currentUserIndex = 0;
     }
 
     /**
@@ -51,7 +59,7 @@ export class Room {
         this.timeRemaining = this.timeRemaining - 1;
         let word = this.game.words[this.currentWordIndex]
         // Send message about time remaining
-        messages.push({type: "room", content: {...this.toJson(), word: word.word}})
+        messages.push({type: "room", content: {...this.toJson(), word: word?.word}})
         this.sendMessage(messages[messages.length - 1])
         // send message about hint
         let hint = word.hints.find((h) => h.timeShowAt === this.timeRemaining)
@@ -62,10 +70,16 @@ export class Room {
         // when time is up
         if (this.timeRemaining === 0) {
             // last word
-            if (this.currentWordIndex === this.game.words.length - 1) {
+            if (this.currentWordIndex >= this.game.words.length - 1) {
+                this.stopGame();
+            } else if (this.currentUserIndex >= this.users.length - 1) {
                 this.stopGame();
             } else {
-                window.clearInterval(this.timer)
+                clearInterval(this.timer)
+                setTimeout(() => {
+                    this.nextWord();
+                }, kWaitTime * 1000)
+
             }
         }
         return messages;
@@ -76,8 +90,8 @@ export class Room {
      * @private
      */
     public randomizeWord() {
-        let newGame: Game = {words: [], category: this.game.category}
-        let words = this.game.words;
+        let newGame: Game = {words: [], category: this.game?.category}
+        let words = this.game?.words ?? [];
         while (words.length > 0) {
             let randomNumber = getRandomArbitrary(0, words.length)
             let word = words.splice(randomNumber, 1)
@@ -91,17 +105,25 @@ export class Room {
      */
     public startGame() {
         this.randomizeWord()
+        this.readyUsers = [];
         this.hasStarted = true;
         this.currentWordIndex = 0;
         this.timeRemaining = kTimePerGame;
         this.timer = setInterval(this.timeCallback, 1000);
+        this.currentUserIndex = 0;
+        this.currentUser = this.users[this.currentUserIndex]
+        this.sendClearMessage()
     }
 
     /**
      * Next word
      */
-    public async nextWord() {
+    public nextWord() {
+        this.sendClearMessage()
         this.currentWordIndex += 1;
+        this.currentUserIndex += 1;
+        this.timeRemaining = kTimePerGame;
+        this.currentUser = this.users[this.currentUserIndex]
         this.timer = setInterval(this.timeCallback, 1000);
     }
 
@@ -109,10 +131,12 @@ export class Room {
      * Stop the game.
      */
     public stopGame() {
-        window.clearInterval(this.timer)
+        clearInterval(this.timer)
         this.currentWordIndex = 0;
         this.timeRemaining = kTimePerGame;
         this.currentWordIndex = 0;
+        this.currentUser = undefined;
+        this.hasStarted = false;
         // send message
         this.sendMessage({type: "room", content: {...this.toJson(), word: undefined}})
     }
@@ -135,13 +159,20 @@ export class Room {
         }
     }
 
+    public sendClearMessage() {
+        let message: Command = {command: "clear", user: undefined}
+        this.sendMessage({type: "command", content: message})
+    }
+
     /**
      * Send each user about current room status.
      * Call this before the game starts
      */
     public notifyRoomStatus() {
         let message: RoomMessage = this.toJson()
+        userList.forEach((u) => u.sendRoomMessage(roomList))
         this.users.forEach((u) => u.sendGameMessage({type: "room", content: message}));
+
     }
 
     /**
@@ -155,6 +186,25 @@ export class Room {
         }
     }
 
+    public ready(user: User) {
+        let foundUser = this.readyUsers.find((u) => u.uuid === user.uuid)
+        if (!foundUser) {
+            this.readyUsers.push(user);
+            if (this.readyUsers.length === this.users.length) {
+                this.startGame()
+            }
+            this.notifyRoomStatus();
+        }
+    }
+
+    public notReady(user: User) {
+        let index = this.readyUsers.findIndex((u) => u.uuid === user.uuid)
+        if (index > -1) {
+            this.readyUsers.splice(index, 1)
+            this.notifyRoomStatus();
+        }
+    }
+
     public toJson() {
         return {
             hasStarted: this.hasStarted,
@@ -162,6 +212,8 @@ export class Room {
             timeRemaining: this.timeRemaining,
             name: this.name,
             room: this.uuid,
+            readyUsers: this.readyUsers.map((u) => u.toJson()),
+            currentUser: this.currentUser?.toJson(),
         }
     }
 }

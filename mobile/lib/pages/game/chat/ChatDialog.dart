@@ -14,6 +14,7 @@ class ChatList extends StatefulWidget {
 
 class _ChatListState extends State<ChatList> {
   TextEditingController textEditingController = TextEditingController();
+  FocusNode focusNode = FocusNode();
 
   @override
   Widget build(BuildContext context) {
@@ -62,11 +63,13 @@ class _ChatListState extends State<ChatList> {
             height: 20,
           ),
           CupertinoTextField(
+            focusNode: focusNode,
             controller: textEditingController,
+            autofocus: true,
             onSubmitted: (v) async {
-              RoomProvider roomProvider = Provider.of(context, listen: false);
-              await gameProvider.sendMessage(v, roomProvider.user);
+              await gameProvider.sendMessage(v);
               textEditingController.clear();
+              FocusScope.of(context).requestFocus(focusNode);
             },
             placeholder: "Message...",
           )

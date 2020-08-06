@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:mobile/models/GameProvider.dart';
 import 'package:mobile/models/RoomProvider.dart';
 import 'package:mobile/models/objects/room.dart';
 import 'package:mobile/pages/game/GamePage.dart';
@@ -61,6 +62,17 @@ class _HomePageState extends State<HomePage> {
                 );
               }
 
+              if (snapshot.connectionState == ConnectionState.done) {
+                return Center(
+                  child: FlatButton(
+                    onPressed: () {
+                      roomProvider.connect();
+                    },
+                    child: Text("Reconnect"),
+                  ),
+                );
+              }
+
               List<Room> room = (JsonDecoder().convert(snapshot.data) as List)
                   .map((r) => Room.fromJson(r))
                   .toList();
@@ -74,13 +86,16 @@ class _HomePageState extends State<HomePage> {
                         isLoading = true;
                       });
                       try {
+                        GameProvider gameProvider =
+                            Provider.of(context, listen: false);
                         await roomProvider.joinRoom(room[index].room);
-                        Navigator.push(
+                        await Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (c) => GamePage(room: room[index].room),
                           ),
                         );
+                        gameProvider.closeConnection();
                       } catch (err) {
                         await showDialog(
                           context: context,
@@ -90,7 +105,9 @@ class _HomePageState extends State<HomePage> {
                           ),
                         );
                       } finally {
-                        isLoading = false;
+                        setState(() {
+                          isLoading = false;
+                        });
                       }
                     },
                     title: Text("Room"),

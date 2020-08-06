@@ -25,4 +25,10 @@ class User {
   String toString() {
     return this.uuid;
   }
+
+  @override
+  bool operator ==(o) => o is User && o.uuid == uuid && o.name == name;
+
+  @override
+  int get hashCode => uuid.hashCode;
 }

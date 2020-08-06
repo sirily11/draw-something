@@ -23,8 +23,7 @@ class _DrawBoardState extends State<DrawBoard> {
           gameProvider.startNewLine(details.localPosition);
         },
         onPanEnd: (details) {
-          RoomProvider roomProvider = Provider.of(context, listen: false);
-          gameProvider.endLine(roomProvider.user);
+          gameProvider.endLine();
         },
         child: LayoutBuilder(
           builder: (context, cons) {

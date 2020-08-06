@@ -20,44 +20,41 @@ class _LoginPageState extends State<LoginPage> {
       appBar: AppBar(
         title: Text("Draw Something"),
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 30),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Spacer(),
-              CupertinoTextField(
-                placeholder: "User Name",
-                onChanged: (v) {
-                  setState(() {
-                    username = v;
-                  });
-                },
-              ),
-              FlatButton(
-                onPressed: username.length == 0
-                    ? null
-                    : () async {
-                        try {
-                          await roomProvider.login(username);
-                          Navigator.pushReplacementNamed(context, "/home");
-                        } catch (err) {
-                          showDialog(
-                            context: context,
-                            builder: (c) => ErrorDialog(
-                              title: "Login Error",
-                              content: "$err",
-                            ),
-                          );
-                        }
-                      },
-                child: Text("Login"),
-              ),
-              Spacer(),
-            ],
-          ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            CupertinoTextField(
+              placeholder: "User Name",
+              onChanged: (v) {
+                setState(() {
+                  username = v;
+                });
+              },
+            ),
+            FlatButton(
+              onPressed: username.length == 0
+                  ? null
+                  : () async {
+                      try {
+                        await roomProvider.login(username);
+                        roomProvider.connect();
+                        Navigator.pushReplacementNamed(context, "/home");
+                      } catch (err) {
+                        showDialog(
+                          context: context,
+                          builder: (c) => ErrorDialog(
+                            title: "Login Error",
+                            content: "$err",
+                          ),
+                        );
+                      }
+                    },
+              child: Text("Login"),
+            ),
+          ],
         ),
       ),
     );

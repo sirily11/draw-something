@@ -85,6 +85,7 @@ app.ws("/game", async (ws, req) => {
         let index = foundRoom?.users?.findIndex((u) => u.uuid === user) ?? -1
         if (index > -1) {
             foundRoom.users.splice(index, 1)
+            foundRoom.notifyRoomStatus();
         }
     })
 })

@@ -34,7 +34,7 @@ export class User implements IUser {
     constructor(args: IUser) {
         if (args.name) {
             this.name = args.name;
-            this.uuid = args.uuid ? args.uuid: uuidv4();
+            this.uuid = args.uuid ? args.uuid : uuidv4();
             this.point = 0;
         } else {
             throw "User name should not be null"
@@ -42,20 +42,25 @@ export class User implements IUser {
 
     }
 
-    startGame(){
+    startGame() {
         this.point = 0;
     }
 
-    endGame(){
+    endGame() {
         this.point = 0;
     }
 
-    sendRoomMessage(message: Room[]){
-        this.roomWebsocket?.send(JSON.stringify(message.map((r) => r.toJson())))
+    sendRoomMessage(message: Room[]) {
+        if (this.roomWebsocket?.readyState === 1)
+            this.roomWebsocket?.send(JSON.stringify(message.map((r) => r.toJson())))
     }
 
-    sendGameMessage(message: Message){
-        this.gameWebsocket.send(JSON.stringify(message))
+    sendGameMessage(message: Message) {
+        if (this.gameWebsocket?.readyState === 1) {
+            console.log(message)
+            this.gameWebsocket.send(JSON.stringify(message))
+        }
+
     }
 
     toJson(): IUser {
