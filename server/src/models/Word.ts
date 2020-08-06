@@ -3,7 +3,7 @@ export interface Game{
     category: string;
 }
 
-export interface Word{
+export interface Word {
     word: string;
     category: string;
     hints: Hint[]

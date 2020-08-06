@@ -1,0 +1,61 @@
+[
+  {
+    "fileMatch": ["/*.game.json"],
+    "schema": {
+      "type": "object",
+      "properties": {
+        "words": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Word"
+          },
+          "title": "words"
+        },
+        "category": {
+          "type": "string",
+          "title": "category"
+        }
+      },
+      "required": ["category", "words"],
+      "definitions": {
+        "Word": {
+          "title": "Word",
+          "type": "object",
+          "properties": {
+            "word": {
+              "type": "string",
+              "title": "word"
+            },
+            "category": {
+              "type": "string",
+              "title": "category"
+            },
+            "hints": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Hint"
+              },
+              "title": "hints"
+            }
+          },
+          "required": ["category", "hints", "word"]
+        },
+        "Hint": {
+          "title": "Hint",
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string",
+              "title": "title"
+            },
+            "timeShowAt": {
+              "type": "number",
+              "title": "timeShowAt"
+            }
+          },
+          "required": ["timeShowAt", "title"]
+        }
+      }
+    }
+  }
+]

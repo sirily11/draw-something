@@ -1,0 +1,15 @@
+{
+  "category": "category",
+  "words": [
+    {
+      "word": "Hello world",
+      "category": "Computer",
+      "hints": [
+        {
+          "title": "a",
+          "timeShowAt": 40
+        }
+      ]
+    }
+  ]
+}
